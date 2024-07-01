@@ -1,0 +1,28 @@
+services:
+  node_server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: server
+    environment:
+      - NODE_ENV=Production
+      - PORT=5000
+  node_server_2:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: server_2
+    environment:
+      - NODE_ENV=Production
+      - PORT=5001
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx
+    restart: always
+    ports:
+      - 80:80
+    depends_on:
+      - node_server

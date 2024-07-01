@@ -5,7 +5,8 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon server.js"
+    "dev": "npx nodemon server.js",
+    "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
@@ -20,5 +21,8 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.3.4",
     "nodemailer": "^6.7.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
   }
 }
