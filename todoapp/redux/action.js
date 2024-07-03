@@ -1,10 +1,48 @@
 import axios from "axios";
+import {
+  addTaskFailure,
+  addTaskRequest,
+  addTaskSuccess,
+  deleteTaskFailure,
+  deleteTaskRequest,
+  deleteTaskSuccess,
+  forgetPasswordFailure,
+  forgetPasswordRequest,
+  forgetPasswordSuccess,
+  loadUserFailure,
+  loadUserRequest,
+  loadUserSuccess,
+  loginFailure,
+  loginRequest,
+  loginSuccess,
+  logoutFailure,
+  logoutRequest,
+  logoutSuccess,
+  registerFailure,
+  registerRequest,
+  registerSuccess,
+  resetPasswordFailure,
+  resetPasswordRequest,
+  resetPasswordSuccess,
+  updatePasswordFailure,
+  updatePasswordRequest,
+  updatePasswordSuccess,
+  updateProfileFailure,
+  updateProfileRequest,
+  updateProfileSuccess,
+  updateTaskFailure,
+  updateTaskRequest,
+  updateTaskSuccess,
+  verificationFailure,
+  verificationRequest,
+  verificationSuccess,
+} from "./reducer";
 
-const serverUrl = "https://todo-app-server-for-free.herokuapp.com/api/v1";
+const serverUrl = "https://todo.fr.to/api/v1";
 
 export const login = (email, password) => async (dispatch) => {
   try {
-    dispatch({ type: "loginRequest" });
+    dispatch(loginRequest());
 
     const { data } = await axios.post(
       `${serverUrl}/login`,
@@ -15,26 +53,28 @@ export const login = (email, password) => async (dispatch) => {
         },
       }
     );
-    dispatch({ type: "loginSuccess", payload: data });
+
+    dispatch(loginSuccess(data));
   } catch (error) {
-    dispatch({ type: "loginFailure", payload: error.response.data.message });
+    dispatch(loginFailure(error.response.data.message));
   }
 };
 
 export const loadUser = () => async (dispatch) => {
   try {
-    dispatch({ type: "loadUserRequest" });
+    dispatch(loadUserRequest());
 
     const { data } = await axios.get(`${serverUrl}/me`);
-    dispatch({ type: "loadUserSuccess", payload: data });
+
+    dispatch(loadUserSuccess(data));
   } catch (error) {
-    dispatch({ type: "loadUserFailure", payload: error.response.data.message });
+    dispatch(loadUserFailure(error.response.data.message));
   }
 };
 
 export const addTask = (title, description) => async (dispatch) => {
   try {
-    dispatch({ type: "addTaskRequest" });
+    dispatch(addTaskRequest());
 
     const { data } = await axios.post(
       `${serverUrl}/newtask`,
@@ -48,9 +88,10 @@ export const addTask = (title, description) => async (dispatch) => {
         },
       }
     );
-    dispatch({ type: "addTaskSuccess", payload: data.message });
+
+    dispatch(addTaskSuccess(data.message));
   } catch (error) {
-    dispatch({ type: "addTaskFailure", payload: error.response.data.message });
+    dispatch(addTaskFailure(error.response.data.message));
   }
 };
 
@@ -58,84 +99,75 @@ export const updateTask = (taskId) => async (dispatch) => {
   try {
     dispatch({ type: "updateTaskRequest" });
 
+    dispatch(updateTaskRequest());
+
     const { data } = await axios.get(`${serverUrl}/task/${taskId}`);
-    dispatch({ type: "updateTaskSuccess", payload: data.message });
+
+    dispatch(updateTaskSuccess(data.message));
   } catch (error) {
-    dispatch({
-      type: "updateTaskFailure",
-      payload: error.response.data.message,
-    });
+    dispatch(updateTaskFailure(error.response.data.message));
   }
 };
 
 export const deleteTask = (taskId) => async (dispatch) => {
   try {
-    dispatch({ type: "deleteTaskRequest" });
+    dispatch(deleteTaskRequest());
 
     const { data } = await axios.delete(`${serverUrl}/task/${taskId}`);
-    dispatch({ type: "deleteTaskSuccess", payload: data.message });
+    dispatch(deleteTaskSuccess(data.message));
   } catch (error) {
-    dispatch({
-      type: "deleteTaskFailure",
-      payload: error.response.data.message,
-    });
+    dispatch(deleteTaskFailure(error.response.data.message));
   }
 };
 
 export const updateProfile = (formData) => async (dispatch) => {
   try {
-    dispatch({ type: "updateProfileRequest" });
+    dispatch(updateProfileRequest());
 
     const { data } = await axios.put(`${serverUrl}/updateprofile`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
-    dispatch({ type: "updateProfileSuccess", payload: data.message });
+
+    dispatch(updateProfileSuccess(data.message));
   } catch (error) {
-    dispatch({
-      type: "updateProfileFailure",
-      payload: error.response.data.message,
-    });
+    dispatch(updateProfileFailure(error.response.data.message));
   }
 };
 
 export const logout = () => async (dispatch) => {
   try {
-    dispatch({ type: "logoutRequest" });
+    dispatch(logoutRequest());
 
     await axios.get(`${serverUrl}/logout`);
-    dispatch({ type: "logoutSuccess" });
+    dispatch(logoutSuccess());
   } catch (error) {
-    dispatch({
-      type: "logoutFailure",
-      payload: error.response.data.message,
-    });
+    dispatch(logoutFailure(error.response.data.message));
   }
 };
 
 export const register = (formData) => async (dispatch) => {
   try {
-    dispatch({ type: "registerRequest" });
+    dispatch(registerRequest());
 
     const { data } = await axios.post(`${serverUrl}/register`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
-    dispatch({ type: "registerSuccess", payload: data });
+    console.log("data", data);
+    dispatch(registerSuccess(data.message));
   } catch (error) {
-    dispatch({
-      type: "registerFailure",
-      payload: error.response.data.message,
-    });
+    console.log("error", error);
+    dispatch(registerFailure(error.response.data.message));
   }
 };
 
 export const updatePassword =
   (oldPassword, newPassword) => async (dispatch) => {
     try {
-      dispatch({ type: "updatePasswordRequest" });
+      dispatch(updatePasswordRequest());
 
       const { data } = await axios.put(
         `${serverUrl}/updatepassword`,
@@ -146,18 +178,15 @@ export const updatePassword =
           },
         }
       );
-      dispatch({ type: "updatePasswordSuccess", payload: data.message });
+      dispatch(updatePasswordSuccess(data.message));
     } catch (error) {
-      dispatch({
-        type: "updatePasswordFailure",
-        payload: error.response.data.message,
-      });
+      dispatch(updatePasswordFailure(error.response.data.message));
     }
   };
 
 export const verify = (otp) => async (dispatch) => {
   try {
-    dispatch({ type: "verificationRequest" });
+    dispatch(verificationRequest());
 
     const { data } = await axios.post(
       `${serverUrl}/verify`,
@@ -169,18 +198,15 @@ export const verify = (otp) => async (dispatch) => {
       }
     );
 
-    dispatch({ type: "verificationSuccess", payload: data.message });
+    dispatch(verificationSuccess(data.message));
   } catch (error) {
-    dispatch({
-      type: "verificationFailure",
-      payload: error.response.data.message,
-    });
+    dispatch(verificationFailure(error.response.data.message));
   }
 };
 
 export const forgetPassword = (email) => async (dispatch) => {
   try {
-    dispatch({ type: "forgetPasswordRequest" });
+    dispatch(forgetPasswordRequest());
 
     const { data } = await axios.post(
       `${serverUrl}/forgetpassword`,
@@ -191,18 +217,15 @@ export const forgetPassword = (email) => async (dispatch) => {
         },
       }
     );
-    dispatch({ type: "forgetPasswordSuccess", payload: data.message });
+    dispatch(forgetPasswordSuccess(data.message));
   } catch (error) {
-    dispatch({
-      type: "forgetPasswordFailure",
-      payload: error.response.data.message,
-    });
+    dispatch(forgetPasswordFailure(error.response.data.message));
   }
 };
 
 export const resetPassword = (otp, newPassword) => async (dispatch) => {
   try {
-    dispatch({ type: "resetPasswordRequest" });
+    dispatch(resetPasswordRequest());
 
     const { data } = await axios.put(
       `${serverUrl}/resetpassword`,
@@ -214,11 +237,8 @@ export const resetPassword = (otp, newPassword) => async (dispatch) => {
       }
     );
 
-    dispatch({ type: "resetPasswordSuccess", payload: data.message });
+    dispatch(resetPasswordSuccess(data.message));
   } catch (error) {
-    dispatch({
-      type: "resetPasswordFailure",
-      payload: error.response.data.message,
-    });
+    dispatch(resetPasswordFailure(error.response.data.message));
   }
 };

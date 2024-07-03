@@ -1,87 +1,100 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { Camera, CameraType } from 'expo-camera';
+import { CameraView, useCameraPermissions } from "expo-camera";
+import * as ImagePicker from "expo-image-picker";
+import React, { useRef, useState } from "react";
+import { Text, View } from "react-native";
+import { Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import * as ImagePicker from "expo-image-picker"
 
 const CameraComponent = ({ navigation, route }) => {
-    const [hasPermission, setHasPermission] = useState(null);
-    const [type, setType] = useState(CameraType.back);
-    const [camera, setCamera] = useState(null);
+  const cameraRef = useRef(null);
 
+  const [facing, setFacing] = useState("front");
+  const [permission, requestPermission] = useCameraPermissions();
 
+  const openImagePickerAsync = async () => {
+    const data = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      aspect: [1, 1],
+      quality: 1,
+    });
 
+    if (data.canceled) return;
 
-    useEffect(() => {
-        (async () => {
-            const { status } = await Camera.requestCameraPermissionsAsync();
-            setHasPermission(status === 'granted');
-        })();
-    }, []);
+    const image = data.assets[0].uri;
 
-    const openImagePickerAsync = async () => {
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (route.params.updateProfile)
+      return navigation.navigate("profile", { image });
+    else return navigation.navigate("register", { image });
+  };
 
-        if (permissionResult.granted === false) {
-            alert("Permission to access camera roll is required!");
-            return;
-        }
+  const clickPicture = async () => {
+    const camera = cameraRef.current;
 
-        const data = await ImagePicker.launchImageLibraryAsync({
-            allowsEditing: true, aspect: [1, 1], quality: 1
-        });
-        if (route.params.updateProfile) return navigation.navigate("profile", { image: data.uri })
-        else return navigation.navigate("register", { image: data.uri })
-    }
+    if (!camera) return;
 
-    const clickPicture = async () => {
+    const data = await camera.takePictureAsync();
 
-        const data = await camera.takePictureAsync();
-        if (route.params.updateProfile) return navigation.navigate("profile", { image: data.uri })
-        else return navigation.navigate("register", { image: data.uri })
+    if (!data.uri) return alert("Error taking picture");
+    if (route.params.updateProfile)
+      return navigation.navigate("profile", { image: data.uri });
+    else return navigation.navigate("register", { image: data.uri });
+  };
 
-    }
-
-
-    if (hasPermission === null) {
-        return <View />;
-    }
-    if (hasPermission === false) {
-        return <Text>No access to camera</Text>;
-    }
+  if (!permission) {
+    return <View />;
+  }
+  if (permission.granted === false) {
     return (
-        <View style={{ flex: 1 }}>
-            <Camera type={type} style={{ flex: 1, aspectRatio: 1 }} ratio="1:1" ref={(e) => setCamera(e)} />
+      <View>
+        <Text>No access to camera</Text>
 
-
-
-            <View
-                style={{
-                    flexDirection: "row",
-                    position: "absolute",
-                    bottom: 10,
-                    justifyContent: "space-evenly",
-                    width: "100%",
-                }}
-            >
-                <Icon name="image" size={40} color="#fff" onPress={openImagePickerAsync} />
-                <Icon name="camera" size={40} color="#fff" onPress={clickPicture} />
-
-                <Icon
-                    name="flip-camera-android"
-                    size={40}
-                    color="#fff"
-                    onPress={() =>
-                        setType(
-                            type === CameraType.back ? CameraType.front : CameraType.back
-                        )
-                    }
-                />
-            </View>
-
-
-        </View>
+        <Button onPress={requestPermission}>
+          <Text>Allow Camera Access</Text>
+        </Button>
+      </View>
     );
-}
+  }
 
-export default CameraComponent
+  function toggleCameraFacing() {
+    setFacing((current) => (current === "back" ? "front" : "back"));
+  }
+
+  return (
+    <View style={{ flex: 1 }}>
+      <CameraView
+        ref={cameraRef}
+        style={{ flex: 1 }}
+        facing={facing}
+        pictureSize="720x720"
+      ></CameraView>
+
+      <View
+        style={{
+          flexDirection: "row",
+          position: "absolute",
+          bottom: 10,
+          justifyContent: "space-evenly",
+          width: "100%",
+        }}
+      >
+        <Icon
+          name="image"
+          size={40}
+          color="#fff"
+          onPress={openImagePickerAsync}
+        />
+        <Icon name="camera" size={40} color="#fff" onPress={clickPicture} />
+
+        <Icon
+          name="flip-camera-android"
+          size={40}
+          color="#fff"
+          onPress={toggleCameraFacing}
+        />
+      </View>
+    </View>
+  );
+};
+
+export default CameraComponent;
