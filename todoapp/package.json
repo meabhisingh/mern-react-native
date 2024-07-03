@@ -10,11 +10,11 @@
     "eject": "expo eject"
   },
   "dependencies": {
-    "@expo/webpack-config": "~19.0.1",
+    "@expo/webpack-config": "^0.12.52",
     "@react-navigation/native": "^6.0.10",
     "@react-navigation/native-stack": "^6.6.2",
     "@reduxjs/toolkit": "^1.8.2",
-    "axios": "^0.27.2",
+    "axios": "^1.7.2",
     "expo": "^51.0.17",
     "expo-camera": "~15.0.12",
     "expo-image-picker": "~15.0.6",
@@ -28,7 +28,7 @@
     "react-native-vector-icons": "^9.1.0",
     "react-native-web": "~0.19.10",
     "react-redux": "^8.0.2",
-    "webpack-dev-server": "~3.11.0"
+    "webpack-dev-server": "^5.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0"

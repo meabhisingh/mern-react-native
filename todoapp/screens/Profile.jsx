@@ -15,8 +15,8 @@ import Loader from "../components/Loader";
 const Profile = ({ navigation, route }) => {
   const { user, loading } = useSelector((state) => state.auth);
 
-  const [name, setName] = useState(user.name);
-  const [avatar, setAvatar] = useState(user.avatar.url);
+  const [name, setName] = useState(user?.name);
+  const [avatar, setAvatar] = useState(user?.avatar.url);
 
   const dispatch = useDispatch();
 
@@ -94,7 +94,7 @@ const Profile = ({ navigation, route }) => {
         Logout
       </Button>
 
-      {user.verified ? null : (
+      {user?.verified ? null : (
         <Button onPress={() => navigation.navigate("verify")}>Verify</Button>
       )}
     </View>
