@@ -1,14 +1,21 @@
+import cloudinary from "cloudinary";
 import { User } from "../models/users.js";
 import { sendMail } from "../utils/sendMail.js";
 import { sendToken } from "../utils/sendToken.js";
-import cloudinary from "cloudinary";
-import fs from "fs";
+import { getDataUri } from "../utils/features.js";
 
 export const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    const avatar = req.files.avatar.tempFilePath;
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Please upload a file",
+      });
+    }
+
+    const file = getDataUri(req.file);
 
     let user = await User.findOne({ email });
 
@@ -19,10 +26,10 @@ export const register = async (req, res) => {
     }
 
     const otp = Math.floor(Math.random() * 1000000);
+    const otpExpireTime = (process.env.OTP_EXPIRE || 15) * 60 * 1000;
+    const otp_expiry = new Date(Date.now() + otpExpireTime);
 
-    const mycloud = await cloudinary.v2.uploader.upload(avatar);
-
-    fs.rmSync("./tmp", { recursive: true });
+    const mycloud = await cloudinary.v2.uploader.upload(file.content);
 
     user = await User.create({
       name,
@@ -33,7 +40,7 @@ export const register = async (req, res) => {
         url: mycloud.secure_url,
       },
       otp,
-      otp_expiry: new Date(Date.now() + process.env.OTP_EXPIRE * 60 * 1000),
+      otp_expiry,
     });
 
     await sendMail(email, "Verify your account", `Your OTP is ${otp}`);
@@ -196,15 +203,13 @@ export const updateProfile = async (req, res) => {
     const user = await User.findById(req.user._id);
 
     const { name } = req.body;
-    const avatar = req.files.avatar.tempFilePath;
 
     if (name) user.name = name;
-    if (avatar) {
+    if (req.file) {
+      const file = getDataUri(req.file);
+
+      const mycloud = await cloudinary.v2.uploader.upload(file.content);
       await cloudinary.v2.uploader.destroy(user.avatar.public_id);
-
-      const mycloud = await cloudinary.v2.uploader.upload(avatar);
-
-      fs.rmSync("./tmp", { recursive: true });
 
       user.avatar = {
         public_id: mycloud.public_id,

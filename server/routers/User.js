@@ -14,10 +14,13 @@ import {
   verify,
 } from "../controllers/User.js";
 import { isAuthenticated } from "../middleware/auth.js";
+import multer from "multer";
+
+const singleUpload = multer().single("avatar");
 
 const router = express.Router();
 
-router.route("/register").post(register);
+router.route("/register").post(singleUpload, register);
 
 router.route("/verify").post(isAuthenticated, verify);
 
